@@ -2,6 +2,8 @@
 Properties/
 Popn-image-processor.csproj
 app.config
+bin/
+obj/
 
 # Windows image file caches
 Thumbs.db
