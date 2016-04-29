@@ -13,9 +13,11 @@ namespace Popn_image_processor.ImageProcessor
     /// </summary>
     public class ImageDetector
     {
-        private Bitmap chart;
+        Bitmap chart;
         //Uses bit-mask of length 9 to store notes in 1/4 intervals
-        private List<int> notes;
+        List<int> notes;
+        //Contains useful colors in each pop'n image
+        readonly Dictionary<string, Color> colors;
         
         /// <summary>
         /// Constructs an object to extract notes from a pop'n image
@@ -25,6 +27,8 @@ namespace Popn_image_processor.ImageProcessor
         {
             chart = new Bitmap(imagefile);
             notes = new List<int>();
+            colors = new Dictionary<string, Color>();
+            this.GenerateColors();
         }
         
         /// <summary>
@@ -34,6 +38,55 @@ namespace Popn_image_processor.ImageProcessor
         public int[] GetNotes()
         {
             throw new NotImplementedException();
+        }
+        
+        //Fills up our dictionary of colors
+        private void GenerateColors()
+        {
+            colors["GREY"] = Color.FromArgb(195, 195, 195);
+            colors["BLACK"] = Color.FromArgb(0, 0, 0);
+            colors["WHITE"] = Color.FromArgb(255, 255, 255);
+        }
+        
+        //Finds the bottom-left most point on the first track
+        private Point GetStartingPoint()
+        {
+            //Pixel column to start searching from
+            const int searchstart = 30;
+            
+            int row = 0;
+            //In column searchstart, move down the image until a (horizontal) line is found
+            while(chart.GetPixel(searchstart, row) != colors["GREY"] ||
+                  chart.GetPixel(searchstart+1, row) != colors["GREY"] ||
+                  chart.GetPixel(searchstart-1, row) != colors["GREY"])
+            {
+                row++;
+            }
+            
+            int column = searchstart;
+            
+            //Go right until a column is found
+            while(chart.GetPixel(column, row) != colors["BLACK"])
+            {
+                column++;
+            }
+            
+            //Go down until the last line is found
+            while(row + 8 < chart.Height && chart.GetPixel(column, row + 8) != colors["WHITE"])
+            {
+                row += 8;
+            }
+            
+            if(row > chart.Height - 8)
+                throw new ArgumentException("Error: image provided is invalid");
+            
+            //Go left until the last pixel in the line is found
+            while(chart.GetPixel(column-1, row) == colors["BLACK"])
+            {
+                column--;
+            }
+            
+            return new Point(column, row);
         }
     }
 }
