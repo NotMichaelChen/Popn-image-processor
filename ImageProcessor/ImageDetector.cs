@@ -88,5 +88,24 @@ namespace Popn_image_processor.ImageProcessor
             
             return new Point(column, row);
         }
+        
+        //Gets a list of every column in the current track, given the start point
+        //(the leftmost point of the first line on the track)
+        private Point[] GetColumns(Point start)
+        {
+            List<Point> columns = new List<Point>();
+            
+            //First point is a special case, so add it separately
+            start.X += 8;
+            columns.Add(new Point(start.X, start.Y));
+            
+            for(int i = 0; i < 8; i++)
+            {
+                start.X += 13;
+                columns.Add(new Point(start.X, start.Y));
+            }
+            
+            return columns.ToArray();
+        }
     }
 }
