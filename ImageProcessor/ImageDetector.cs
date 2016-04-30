@@ -26,6 +26,8 @@ namespace Popn_image_processor.ImageProcessor
             chart = new Bitmap(imagefile);
             colors = new Dictionary<string, Color>();
             this.GenerateColors();
+            
+            int[] test = GetNotes();
         }
         
         /// <summary>
@@ -40,7 +42,7 @@ namespace Popn_image_processor.ImageProcessor
             Point leftstart = new Point(30, 0);
             Point movingstart;
             
-            while(leftstart.Y < chart.Height)
+            while(leftstart.Y < chart.Height && leftstart.X > 0)
             {
                 leftstart = GetStartingPoint(leftstart);
                 movingstart = leftstart;
@@ -49,8 +51,11 @@ namespace Popn_image_processor.ImageProcessor
                 {
                     if(chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
                     {
-                        while(chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
+                        while(movingstart.Y > 0 && chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
                             movingstart.Y--;
+                        
+                        if(movingstart.Y <= 0)
+                            break;
                     }
                     
                     movingstart = FindBottom(movingstart);
@@ -58,9 +63,7 @@ namespace Popn_image_processor.ImageProcessor
                     movingstart.X += 130;
                 }
                 
-                while(chart.GetPixel(leftstart.X, leftstart.Y) != colors["BLACK"])
-                    leftstart.Y++;
-                
+                leftstart = FindLowerLine(leftstart);
             }
             
             return notes.ToArray();
@@ -79,10 +82,11 @@ namespace Popn_image_processor.ImageProcessor
         {   
             int row = searchstart.Y;
             //In column searchstart, move down the image until a (horizontal) line is found
-            while(chart.GetPixel(searchstart.X, row) != colors["GREY"] ||
-                  chart.GetPixel(searchstart.X + 1, row) != colors["GREY"] ||
+            while(chart.GetPixel(searchstart.X, row) != colors["GREY"] &&
+                  chart.GetPixel(searchstart.X + 1, row) != colors["GREY"] &&
                   chart.GetPixel(searchstart.X - 1, row) != colors["GREY"])
             {
+                bool test = chart.GetPixel(searchstart.X, row) == colors["GREY"];
                 row++;
             }
             
@@ -167,7 +171,6 @@ namespace Popn_image_processor.ImageProcessor
         
         //Finds the bottom-most line of a track
         //"edge" MUST be on a line, if it's not then an exception is thrown
-        //TODO: Think about whether this should be a function or not
         private Point FindBottom(Point edge)
         {
             if(chart.GetPixel(edge.X, edge.Y) != colors["BLACK"])
@@ -177,6 +180,19 @@ namespace Popn_image_processor.ImageProcessor
                 edge.Y++;
             
             return edge;
-        }        
+        }
+        
+        //Finds the track below the current track, noted by start
+        //returns an invalid point if there is no bottom track 
+        private Point FindLowerLine(Point start)
+        {
+            start.Y++;
+            while(start.Y < chart.Height && chart.GetPixel(start.X, start.Y) != colors["BLACK"])
+                    start.Y++;
+            if(start.Y == chart.Height)
+                return new Point(-1, -1);
+            else
+                return start;
+        }
     }
 }
