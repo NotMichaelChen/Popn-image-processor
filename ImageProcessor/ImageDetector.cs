@@ -49,6 +49,7 @@ namespace Popn_image_processor.ImageProcessor
                 
                 while(movingstart.X < chart.Width)
                 {
+                    //Move up if the track is to the top-right
                     if(chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
                     {
                         while(movingstart.Y > 0 && chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
@@ -57,8 +58,12 @@ namespace Popn_image_processor.ImageProcessor
                         if(movingstart.Y <= 0)
                             break;
                     }
+                    if(chart.GetPixel(movingstart.X, movingstart.Y) != colors["BLACK"])
+                        break;
                     
                     movingstart = FindBottom(movingstart);
+                    if(movingstart.X < 0)
+                        break;
                     notes.AddRange(GetTrackNotes(GetColumns(movingstart)));
                     movingstart.X += 130;
                 }
@@ -86,7 +91,6 @@ namespace Popn_image_processor.ImageProcessor
                   chart.GetPixel(searchstart.X + 1, row) != colors["GREY"] &&
                   chart.GetPixel(searchstart.X - 1, row) != colors["GREY"])
             {
-                bool test = chart.GetPixel(searchstart.X, row) == colors["GREY"];
                 row++;
             }
             
@@ -176,9 +180,11 @@ namespace Popn_image_processor.ImageProcessor
             if(chart.GetPixel(edge.X, edge.Y) != colors["BLACK"])
                 throw new ArgumentException("Error: adjacent track not found");
             
-            while(chart.GetPixel(edge.X, edge.Y + 1) == colors["BLACK"])
-                edge.Y++;
+            while(edge.Y + 128 < chart.Height && chart.GetPixel(edge.X, edge.Y + 128) == colors["BLACK"])
+                edge.Y += 128; //Distance of one whole measure
             
+            if(edge.Y == chart.Height)
+                return new Point(-1, -1);
             return edge;
         }
         
