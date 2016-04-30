@@ -107,5 +107,39 @@ namespace Popn_image_processor.ImageProcessor
             
             return columns.ToArray();
         }
+        
+        //Gets all of the notes on the given track and returns a list of bitmasks
+        //for each 1/4 step
+        private int[] GetTrackNotes(Point[] columns)
+        {
+            List<int> tracknotes = new List<int>();
+            
+            if(columns.Length != 9)
+                throw new ArgumentException("Error: invalid number of columns: " + columns.Length);
+            
+            int firstcol = columns[0].X;
+            int line = columns[0].Y;
+            
+            //While there are still lines in the track
+            while(chart.GetPixel(firstcol, line) == colors["BLACK"])
+            {
+                //Holds the bitmask for the current line
+                int notesum = 0;
+                //Move each column to the next line and check for a note
+                for(int i = 0; i < columns.Length; i++)
+                {
+                    columns[i].Y = line;
+                    //Use the position in the array to determine which index of the bitmaks to assign to
+                    if(chart.GetPixel(columns[i].X + 1, columns[i].Y + 3) == colors["BLACK"])
+                        notesum += (int)Math.Pow(2.0, i);
+                }
+                tracknotes.Add(notesum);
+                
+                //Move up a line (minus is moving up)
+                line -= 8;
+            }
+            
+            return tracknotes.ToArray();
+        }
     }
 }
