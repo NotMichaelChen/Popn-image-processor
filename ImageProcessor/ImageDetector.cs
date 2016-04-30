@@ -13,7 +13,7 @@ namespace Popn_image_processor.ImageProcessor
     /// </summary>
     public class ImageDetector
     {
-        Bitmap chart;
+        readonly Bitmap chart;
         //Contains useful colors in each pop'n image
         readonly Dictionary<string, Color> colors;
         
@@ -53,12 +53,13 @@ namespace Popn_image_processor.ImageProcessor
                             movingstart.Y--;
                     }
                     
-                    //movingstart = FindBottom(movingstart)
+                    movingstart = FindBottom(movingstart);
                     notes.AddRange(GetTrackNotes(GetColumns(movingstart)));
                     movingstart.X += 130;
                 }
                 
-                //leftstart = FindLine(leftstart)
+                while(chart.GetPixel(leftstart.X, leftstart.Y) != colors["BLACK"])
+                    leftstart.Y++;
                 
             }
             
@@ -166,6 +167,7 @@ namespace Popn_image_processor.ImageProcessor
         
         //Finds the bottom-most line of a track
         //"edge" MUST be on a line, if it's not then an exception is thrown
+        //TODO: Think about whether this should be a function or not
         private Point FindBottom(Point edge)
         {
             if(chart.GetPixel(edge.X, edge.Y) != colors["BLACK"])
@@ -175,6 +177,6 @@ namespace Popn_image_processor.ImageProcessor
                 edge.Y++;
             
             return edge;
-        }
+        }        
     }
 }
