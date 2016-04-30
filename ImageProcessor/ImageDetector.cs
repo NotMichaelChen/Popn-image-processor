@@ -14,8 +14,6 @@ namespace Popn_image_processor.ImageProcessor
     public class ImageDetector
     {
         Bitmap chart;
-        //Uses bit-mask of length 9 to store notes in 1/4 intervals
-        List<int> notes;
         //Contains useful colors in each pop'n image
         readonly Dictionary<string, Color> colors;
         
@@ -26,7 +24,6 @@ namespace Popn_image_processor.ImageProcessor
         public ImageDetector(string imagefile)
         {
             chart = new Bitmap(imagefile);
-            notes = new List<int>();
             colors = new Dictionary<string, Color>();
             this.GenerateColors();
         }
@@ -37,7 +34,29 @@ namespace Popn_image_processor.ImageProcessor
         /// <returns>An array of bitmasks in 1/4 intervals</returns>
         public int[] GetNotes()
         {
-            throw new NotImplementedException();
+            //Uses bit-mask of length 9 to store notes in 1/4 intervals
+            List<int> notes = new List<int>();
+            
+            Point leftstart = new Point(30, 0);
+            Point movingstart;
+            
+            while(leftstart.Y < chart.Height)
+            {
+                leftstart = GetStartingPoint(leftstart);
+                movingstart = leftstart;
+                
+                while(movingstart.X < chart.Width)
+                {
+                    //movingstart = FindBottom(movingstart)
+                    notes.AddRange(GetTrackNotes(GetColumns(movingstart)));
+                    movingstart.X += 130;
+                }
+                
+                //leftstart = FindLine(leftstart)
+                
+            }
+            
+            return notes.ToArray();
         }
         
         //Fills up our dictionary of colors
@@ -48,7 +67,7 @@ namespace Popn_image_processor.ImageProcessor
             colors["WHITE"] = Color.FromArgb(255, 255, 255);
         }
         
-        //Finds the bottom-left most point on the first track
+        //Finds the bottom-left most point on the track
         private Point GetStartingPoint(Point searchstart)
         {   
             int row = searchstart.Y;
