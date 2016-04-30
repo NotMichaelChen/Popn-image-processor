@@ -49,21 +49,18 @@ namespace Popn_image_processor.ImageProcessor
         }
         
         //Finds the bottom-left most point on the first track
-        private Point GetStartingPoint()
-        {
-            //Pixel column to start searching from
-            const int searchstart = 30;
-            
-            int row = 0;
+        private Point GetStartingPoint(Point searchstart)
+        {   
+            int row = searchstart.Y;
             //In column searchstart, move down the image until a (horizontal) line is found
-            while(chart.GetPixel(searchstart, row) != colors["GREY"] ||
-                  chart.GetPixel(searchstart+1, row) != colors["GREY"] ||
-                  chart.GetPixel(searchstart-1, row) != colors["GREY"])
+            while(chart.GetPixel(searchstart.X, row) != colors["GREY"] ||
+                  chart.GetPixel(searchstart.X + 1, row) != colors["GREY"] ||
+                  chart.GetPixel(searchstart.X - 1, row) != colors["GREY"])
             {
                 row++;
             }
             
-            int column = searchstart;
+            int column = searchstart.X;
             
             //Go right until a column is found
             while(chart.GetPixel(column, row) != colors["BLACK"])
