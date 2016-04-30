@@ -157,5 +157,18 @@ namespace Popn_image_processor.ImageProcessor
             
             return tracknotes.ToArray();
         }
+        
+        //Finds the bottom-most line of a track
+        //"edge" MUST be on a line, if it's not then an exception is thrown
+        private Point FindBottom(Point edge)
+        {
+            if(chart.GetPixel(edge.X, edge.Y) != colors["BLACK"])
+                throw new ArgumentException("Error: adjacent track not found");
+            
+            while(chart.GetPixel(edge.X, edge.Y + 1) == colors["BLACK"])
+                edge.Y++;
+            
+            return edge;
+        }
     }
 }
