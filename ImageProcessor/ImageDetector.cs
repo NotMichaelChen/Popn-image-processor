@@ -47,6 +47,12 @@ namespace Popn_image_processor.ImageProcessor
                 
                 while(movingstart.X < chart.Width)
                 {
+                    if(chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
+                    {
+                        while(chart.GetPixel(movingstart.X, movingstart.Y) == colors["WHITE"])
+                            movingstart.Y--;
+                    }
+                    
                     //movingstart = FindBottom(movingstart)
                     notes.AddRange(GetTrackNotes(GetColumns(movingstart)));
                     movingstart.X += 130;
